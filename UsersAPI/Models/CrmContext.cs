@@ -47,6 +47,10 @@ public partial class CrmContext : DbContext
         modelBuilder.Entity<Division>(entity =>
         {
             entity.Property(e => e.DivisionName).HasMaxLength(40);
+
+            entity.HasOne(d => d.UpperDivision).WithMany(p => p.InverseUpperDivision)
+                .HasForeignKey(d => d.UpperDivisionId)
+                .HasConstraintName("FK_Divisions_Divisions");
         });
 
         modelBuilder.Entity<LikeType>(entity =>

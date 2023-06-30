@@ -32,7 +32,7 @@ namespace UsersAPI.Controllers
           {
               return NotFound();
           }
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Include(x => x.Company).Include(x => x.ProfileImages).Include(x => x.Division).ThenInclude(x => x.UpperDivision).ToListAsync();
         }
 
         // GET: api/Users/5
