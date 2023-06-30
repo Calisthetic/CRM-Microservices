@@ -62,9 +62,7 @@ public partial class CrmContext : DbContext
         {
             entity.Property(e => e.ActionLink).HasMaxLength(128);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.NotificationText)
-                .HasMaxLength(128)
-                .IsFixedLength();
+            entity.Property(e => e.NotificationText).HasMaxLength(128);
 
             entity.HasOne(d => d.User).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.UserId)
