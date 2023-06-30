@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models;
 using UsersAPI.Models.DTOs.Incoming;
+using UsersAPI.Models.DTOs.Outgoing;
 
 namespace UsersAPI.Controllers
 {
@@ -26,13 +27,15 @@ namespace UsersAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IList<UserInfoDto>>> GetUsers()
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
-            return await _context.Users.Include(x => x.Company).Include(x => x.ProfileImages).Include(x => x.Division).ThenInclude(x => x.UpperDivision).ToListAsync();
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+            return Ok(_mapper.Map<IList<User>, IList<UserInfoDto>>(await _context.Users.Include(x => x.Company)
+                .Include(x => x.ProfileImages).Include(x => x.Division).ThenInclude(x => x.UpperDivision)
+                .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).ToListAsync()));
         }
 
         // GET: api/Users/5
@@ -92,7 +95,7 @@ namespace UsersAPI.Controllers
             if (_context.Users == null)
                 return Problem("Entity set 'CrmContext.Users' is null.");
             if (!ModelState.IsValid) 
-                return new JsonResult("Smth went wrong") { StatusCode = 500 };
+                return new JsonResult("Something went wrong") { StatusCode = 500 };
 
             var newUser = _mapper.Map<User>(user);
             await _context.Users.AddAsync(newUser);
