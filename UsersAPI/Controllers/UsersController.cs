@@ -99,7 +99,6 @@ namespace UsersAPI.Controllers
 
             var newUser = _mapper.Map<User>(user);
             await _context.Users.AddAsync(newUser);
-            //_context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             //return Ok();

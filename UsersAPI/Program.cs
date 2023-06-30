@@ -9,6 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Added
+builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<CrmContext>();
 
@@ -33,6 +35,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
+app.UseResponseCompression();
 app.MapControllers();
 app.UseCors(MyAllowSpecificOrigins);
 
