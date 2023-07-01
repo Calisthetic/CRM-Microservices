@@ -33,7 +33,7 @@ namespace UsersAPI.Profiles
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login))
-                .ForMember(dest => dest.Division, opt => opt.MapFrom(src => src.Division))
+                .ForMember(dest => dest.Division, opt => opt.MapFrom(src => new DivisionInfoDto(src.Division)))
                 .ForMember(dest => dest.Company, opt => opt.MapFrom(src => src.Company.CompanyName))
                 .ForMember(dest => dest.VacationCount, opt => opt.MapFrom(src => src.VacationCount))
                 .ForMember(dest => dest.TimeOff, opt => opt.MapFrom(src => 

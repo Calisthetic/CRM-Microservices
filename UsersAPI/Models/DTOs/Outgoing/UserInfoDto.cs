@@ -21,7 +21,7 @@ namespace UsersAPI.Models.DTOs.Outgoing
         public string Login { get; set; } = null!;
         public string Password { get; set; } = null!;
 
-        public Division Division { get; set; } = null!;
+        public DivisionInfoDto? Division { get; set; }
         public string Company { get; set; } = null!;
 
         [JsonPropertyName("vacation_count")]
