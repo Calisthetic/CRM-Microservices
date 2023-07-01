@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using UsersAPI.Models;
 using UsersAPI.Models.DTOs.Incoming;
 using UsersAPI.Models.DTOs.Outgoing;
@@ -18,11 +23,13 @@ namespace UsersAPI.Controllers
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(CrmContext context, IMapper mapper)
+        public UsersController(CrmContext context, IMapper mapper, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         // GET: api/Users
@@ -105,6 +112,22 @@ namespace UsersAPI.Controllers
             return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
         }
 
+        // POST: api/Users
+        [HttpPost("login")]
+        public async Task<ActionResult<User>> LoginUser(LoginUserDto user)
+        {
+            if (_context.Users == null)
+                return Problem("Entity set 'CrmContext.Users' is null.");
+            if (!ModelState.IsValid)
+                return new JsonResult("Something went wrong") { StatusCode = 500 };
+
+            var existUser = await _context.Users.FirstOrDefaultAsync(x => x.Login == user.Login && x.Password == user.Password);
+            if (existUser == null)
+                return NotFound();
+
+            return Ok(new SuccessLoginDto() { token = CreateToken(existUser) });
+        }
+
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
@@ -128,6 +151,28 @@ namespace UsersAPI.Controllers
         private bool UserExists(int id)
         {
             return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+        }
+
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FirstName)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _configuration.GetSection("AppSettings:Token").Value!));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: creds
+                );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
         }
     }
 }
