@@ -9,7 +9,7 @@ namespace UsersAPI.Profiles
     public class UserProfile : Profile
     {
         public UserProfile() {
-            CreateMap<NewUserDto, User>()
+            CreateMap<UserAddNewDto, User>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => 
                     src.FirstName.Substring(0, 1).ToUpper() + src.FirstName.Substring(1, src.FirstName.Length - 1).ToLower()))
                 .ForMember(dest => dest.SecondName, opt => opt.MapFrom(src => 
