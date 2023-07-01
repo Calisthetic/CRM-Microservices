@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using UsersAPI.Configurations;
 using UsersAPI.Models;
 using UsersAPI.Models.DTOs.Incoming;
 using UsersAPI.Models.DTOs.Outgoing;
@@ -101,7 +102,7 @@ namespace UsersAPI.Controllers
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(NewUserDto user)
+        public async Task<ActionResult<User>> PostUser(UserAddNewDto user)
         {
             if (_context.Users == null)
                 return Problem("Entity set 'CrmContext.Users' is null.");
@@ -119,7 +120,24 @@ namespace UsersAPI.Controllers
         // POST: api/Users
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<User>> LoginUser(LoginUserDto user)
+        public async Task<ActionResult<User>> LoginUser(UserLoginRequestDto user)
+        {
+            if (_context.Users == null)
+                return Problem("Entity set 'CrmContext.Users' is null.");
+            if (!ModelState.IsValid)
+                return new JsonResult("Something went wrong") { StatusCode = 500 };
+
+            var existUser = await _context.Users.FirstOrDefaultAsync(x => x.Login == user.Login && x.Password == user.Password);
+            if (existUser == null)
+                return NotFound();
+
+            return Ok(new SuccessLoginDto() { token = GenerateToken(existUser) });
+        }
+        
+        // POST: api/Users
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<ActionResult<User>> RegisterUser(UserLoginRequestDto user)
         {
             if (_context.Users == null)
                 return Problem("Entity set 'CrmContext.Users' is null.");
@@ -156,6 +174,30 @@ namespace UsersAPI.Controllers
         private bool UserExists(int id)
         {
             return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+        }
+
+        private string GenerateToken(User user)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value!);
+
+            // Token descriptor
+            var tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(type:"Id", value: user.UserId.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString())
+                }),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            };
+
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            return jwtTokenHandler.WriteToken(token);
         }
 
         private string CreateToken(User user)
