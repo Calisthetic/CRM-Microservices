@@ -1,6 +1,6 @@
 ﻿namespace UsersAPI.Models.DTOs.Incoming
 {
-    public class LoginUserDto
+    public class UserLoginRequestDto
     {
         public string Login { get; set; } = null!; 
         public string Password { get; set; } = null!;

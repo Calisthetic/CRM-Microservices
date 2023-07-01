@@ -1,6 +1,6 @@
 ﻿namespace UsersAPI.Models.DTOs.Incoming
 {
-    public class NewUserDto
+    public class UserAddNewDto
     {
         public string FirstName { get; set; } = null!;
 
