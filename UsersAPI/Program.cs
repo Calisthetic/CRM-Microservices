@@ -15,21 +15,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-//builder.Services.AddSwaggerGen(options =>
-//{
-//    options.AddSecurityDefinition("oauth2", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//    {
-//        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-//        Name = "Authorization",
-//        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-//    });
-//    options.OperationFilter<SecurityRequirementsOperationFilter>();
-//});
-//builder.Services.AddAuthentication().AddJwtBearer();
 
 // Added code
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+    });
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
 
 builder.Services.AddAuthentication(options =>

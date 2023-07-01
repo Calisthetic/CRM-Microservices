@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using UsersAPI.Configurations;
 using UsersAPI.Models;
 using UsersAPI.Models.DTOs.Incoming;
@@ -37,7 +38,7 @@ namespace UsersAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,Adn"), Authorize(Roles = "Admidn")]
         //[Authorize(Roles = "Admin")]
         public async Task<ActionResult<IList<UserInfoDto>>> GetUsers()
         {
@@ -120,14 +121,15 @@ namespace UsersAPI.Controllers
         // POST: api/Users
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<User>> LoginUser(UserLoginRequestDto user)
+        public async Task<ActionResult<SuccessLoginDto>> LoginUser(UserLoginRequestDto user)
         {
             if (_context.Users == null)
                 return Problem("Entity set 'CrmContext.Users' is null.");
             if (!ModelState.IsValid)
                 return new JsonResult("Something went wrong") { StatusCode = 500 };
 
-            var existUser = await _context.Users.FirstOrDefaultAsync(x => x.Login == user.Login && x.Password == user.Password);
+            var existUser = await _context.Users.Include(x => x.Role)
+                .FirstOrDefaultAsync(x => x.Login == user.Login && x.Password == user.Password);
             if (existUser == null)
                 return NotFound();
 
@@ -148,7 +150,7 @@ namespace UsersAPI.Controllers
             if (existUser == null)
                 return NotFound();
 
-            return Ok(new SuccessLoginDto() { token = CreateToken(existUser) });
+            return Ok(new SuccessLoginDto() { token = GenerateToken(existUser) });
         }
 
         // DELETE: api/Users/5
@@ -180,13 +182,15 @@ namespace UsersAPI.Controllers
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value!);
+            var roles = JsonConvert.SerializeObject(new string[] { user.Role.RoleName }).ToString();
 
-            // Token descriptor
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(type:"Id", value: user.UserId.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role.RoleName),
+                    new Claim(ClaimTypes.Role, "sus"),
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -198,28 +202,6 @@ namespace UsersAPI.Controllers
 
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
             return jwtTokenHandler.WriteToken(token);
-        }
-
-        private string CreateToken(User user)
-        {
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.FirstName)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value!));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
-            var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds
-                );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwt;
         }
     }
 }
