@@ -1,3 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using System.Text;
+//using Microsoft.OpenApi.Filters;
 using UsersAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,9 +14,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-// Added
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+    });
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+builder.Services.AddAuthentication().AddJwtBearer();
+
+// Added code
+
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<CrmContext>();
@@ -35,8 +54,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
-app.UseResponseCompression();
 app.MapControllers();
+
+// Added
+app.UseAuthentication();
+
+app.UseResponseCompression();
 app.UseCors(MyAllowSpecificOrigins);
 
 app.Run();

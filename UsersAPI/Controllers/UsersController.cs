@@ -6,6 +6,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -34,6 +36,8 @@ namespace UsersAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult<IList<UserInfoDto>>> GetUsers()
         {
             if (_context.Users == null)
@@ -113,6 +117,7 @@ namespace UsersAPI.Controllers
         }
 
         // POST: api/Users
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<User>> LoginUser(LoginUserDto user)
         {
@@ -163,7 +168,7 @@ namespace UsersAPI.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration.GetSection("AppSettings:Token").Value!));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
             var token = new JwtSecurityToken(
                     claims: claims,
