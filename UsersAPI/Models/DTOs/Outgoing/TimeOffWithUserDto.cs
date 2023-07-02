@@ -2,7 +2,7 @@
 
 namespace UsersAPI.Models.DTOs.Outgoing
 {
-    public class UserTimeOffInfoDto
+    public class TimeOffWithUserDto
     {
         [JsonPropertyName("id")]
         public int UserTimeOffId { get; set; }

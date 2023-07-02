@@ -29,7 +29,6 @@ namespace UsersAPI.Controllers
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private List<int> _users = new List<int>();
 
         public UsersController(CrmContext context, IMapper mapper, IConfiguration configuration)
         {
