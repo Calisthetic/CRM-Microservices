@@ -5,7 +5,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -46,15 +47,14 @@ namespace UsersAPI.Controllers
             {
                 return NotFound();
             }
-            return Ok(await _context.Users.Include(x => x.ProfileImages)
-                .Include(x => x.Division).ThenInclude(x => x.UpperDivision)
-                .Include(x => x.Division).ThenInclude(x => x.Company)
-                //.Include(x => x.Division).ThenInclude(x => x.PermissionsOfDivisions).ThenInclude(x => x.Permission)
-                .Include(x => x.Division).ThenInclude(x => x.DivisionPrefix)
-                .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).ToListAsync());
-            //return Ok(_mapper.Map<IList<User>, IList<UserInfoDto>>(await _context.Users
-            //    .Include(x => x.ProfileImages).Include(x => x.Division).ThenInclude(x => x.UpperDivision)
-            //    .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).ToListAsync()));
+            //return Ok(await _context.Users.Include(x => x.ProfileImages)
+            //    .Include(x => x.Division).ThenInclude(x => x.UpperDivision)
+            //    .Include(x => x.Division).ThenInclude(x => x.Company)
+            //    //.Include(x => x.Division).ThenInclude(x => x.PermissionsOfDivisions).ThenInclude(x => x.Permission)
+            //    .Include(x => x.Division).ThenInclude(x => x.DivisionPrefix)
+            //    .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).ToListAsync());
+            //return Ok(_context.Users);
+            return Ok(_context.Users.ProjectToType<UserInfoDto>());
         }
 
         // GET: api/Users/5
@@ -163,12 +163,12 @@ namespace UsersAPI.Controllers
             if (!ModelState.IsValid) 
                 return new JsonResult("Something went wrong") { StatusCode = 500 };
 
-            var newUser = _mapper.Map<User>(user);
-            await _context.Users.AddAsync(newUser);
+            //var newUser = _mapper.Map<User>(user);
+            //await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
 
-            //return Ok();
-            return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
+            return Ok();
+            //return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
         }
 
         // POST: api/Users

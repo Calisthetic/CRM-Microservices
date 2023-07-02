@@ -21,14 +21,14 @@ namespace UsersAPI.Models.DTOs.Outgoing
         public string Login { get; set; } = null!;
         public string Password { get; set; } = null!;
 
-        public DivisionInfoDto? Division { get; set; }
+        public string? Division { get; set; }
         public string Company { get; set; } = null!;
 
         [JsonPropertyName("vacation_count")]
         public short VacationCount { get; set; }
 
         [JsonPropertyName("profile_image")]
-        public virtual string? ProfileImage { get; set; }
+        public string? ProfileImage { get; set; }
         [JsonPropertyName("time_off")]
         public virtual UsersTimeOff? TimeOff { get; set; }
     }

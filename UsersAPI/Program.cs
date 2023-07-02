@@ -1,12 +1,18 @@
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UsersAPI.Configurations;
 //using Microsoft.OpenApi.Filters;
 using UsersAPI.Models;
+using UsersAPI.Services.Mappers;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,8 +60,13 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+//builder.Services.AddSingleton<IMapper, ServiceMapper>();
+
+builder.Services.AddControllers();
+builder.Services.AddMappings();
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<CrmContext>();
 
 var MyAllowSpecificOrigins = "MyPolicy";
