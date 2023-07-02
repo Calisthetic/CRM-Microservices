@@ -32,7 +32,7 @@ namespace UsersAPI.Services.Mappers
             config.NewConfig<UsersTimeOff, TimeOffWithUserDto>()
                 .Map(x => x.User, x => x.User.Adapt<UserShortInfoDto>())
                 .RequireDestinationMemberSource(true);
-            config.NewConfig<TimeOffAddNewDto, UsersTimeOff>()
+            config.NewConfig<TimeOffAddUpdateDto, UsersTimeOff>()
                 .Map(x => x.StartTimeOff, x => DateTime.Parse(x.StartTimeOff))
                 .Map(x => x.EndTimeOff, x => DateTime.Parse(x.EndTimeOff))
                 .RequireDestinationMemberSource(false);

@@ -3,7 +3,7 @@ using UsersAPI.Models.DB;
 
 namespace UsersAPI.Models.DTOs.Incoming
 {
-    public class TimeOffAddNewDto
+    public class TimeOffAddUpdateDto
     {
         [JsonPropertyName("user_id")]
         public int UserId { get; set; }

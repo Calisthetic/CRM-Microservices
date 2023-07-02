@@ -59,18 +59,34 @@ namespace UsersAPI.Controllers
 
         // PUT: api/user/time_off/5
         [HttpPut("{user_id}")]
-        public async Task<IActionResult> PutUsersTimeOff(int user_id, TimeOffAddNewDto timeOff)
+        public async Task<IActionResult> PutUsersTimeOff(int user_id, TimeOffAddUpdateDto timeOff)
         {
             if (user_id != timeOff.UserId)
             {
                 return BadRequest();
             }
 
-            var usersTimeOff = await _context.UsersTimeOffs.FirstOrDefaultAsync(x => x.EndTimeOff > DateTime.Now && x.UserId == user_id);
-            if (usersTimeOff == null)
+            var existTimeOff = await _context.UsersTimeOffs.FirstOrDefaultAsync(x => x.EndTimeOff > DateTime.Now && x.UserId == user_id);
+            if (existTimeOff == null)
                 return NotFound();
 
-            _context.Entry(timeOff).State = EntityState.Modified;
+            if (DateTime.TryParse(timeOff.StartTimeOff, out DateTime resultStart) == false)
+                return BadRequest(new BadResponseDto() { Error = "Unable to parse start time off. Use 01/01/2000 format instead" });
+            if (DateTime.TryParse(timeOff.EndTimeOff, out DateTime resultEnd) == false)
+                return BadRequest(new BadResponseDto() { Error = "Unable to parse end time off. Use 01/01/2000 format instead" });
+
+            if (resultEnd < DateTime.Now)
+                return BadRequest(new BadResponseDto() { Error = "End of time off must be after the current date" });
+            if (resultStart > DateTime.Now.AddDays(31))
+                return BadRequest(new BadResponseDto() { Error = "Time off can't start after 30 days from current date" });
+            if (resultStart >= resultEnd)
+                return BadRequest(new BadResponseDto() { Error = "The beginning of the time off can be no later than the end" });
+            if (resultStart.AddDays(28) < resultEnd)
+                return BadRequest(new BadResponseDto() { Error = "Time off can last no more than 4 weeks" });
+
+            var newTimeOff = timeOff.Adapt<UsersTimeOff>();
+            newTimeOff.UserTimeOffId = existTimeOff.UserId;
+            _context.Entry(newTimeOff).State = EntityState.Modified;
 
             try
             {
@@ -78,14 +94,7 @@ namespace UsersAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UsersTimeOffExists(user_id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, new BadResponseDto() { Error = "An error occurred while saving changes" });
             }
 
             return NoContent();
@@ -93,7 +102,7 @@ namespace UsersAPI.Controllers
 
         // POST: api/user/time_off
         [HttpPost]
-        public async Task<ActionResult<UsersTimeOff>> PostUsersTimeOff(TimeOffAddNewDto timeOff)
+        public async Task<ActionResult<UsersTimeOff>> PostUsersTimeOff(TimeOffAddUpdateDto timeOff)
         {
             if (_context == null || _context.UsersTimeOffs == null)
             {
@@ -103,7 +112,7 @@ namespace UsersAPI.Controllers
             if ((_context.Users?.Any(x => x.UserId == timeOff.UserId)).GetValueOrDefault() == false)
                 return BadRequest(new BadResponseDto() { Error = "User doesn't exest" });
             if ((_context.UsersTimeOffs?.Any(x => x.UserId == timeOff.UserId && x.EndTimeOff > DateTime.Now)).GetValueOrDefault() == true)
-                return BadRequest(new BadResponseDto() { Error = "User's time off already exist" });
+                return BadRequest(new BadResponseDto() { Error = "User's time off already exist. Change the existing" });
 
             if (DateTime.TryParse(timeOff.StartTimeOff, out DateTime resultStart) == false)
                 return BadRequest(new BadResponseDto() { Error = "Unable to parse start time off. Use 01/01/2000 format instead" });
