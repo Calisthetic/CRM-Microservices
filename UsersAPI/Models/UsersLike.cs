@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace UsersAPI.Models;
 
@@ -17,5 +18,6 @@ public partial class UsersLike
 
     public virtual LikeType LikeType { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual User LikedUser { get; set; } = null!;
 }

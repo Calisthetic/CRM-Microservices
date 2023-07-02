@@ -6,19 +6,26 @@ namespace UsersAPI.Models;
 
 public partial class Division
 {
-    [JsonIgnore]
     public int DivisionId { get; set; }
-    [JsonIgnore]
+
     public int? UpperDivisionId { get; set; }
 
-    [JsonPropertyName("division_name")]
     public string DivisionName { get; set; } = null!;
 
+    public int CompanyId { get; set; }
+
+    public int? DivisionPrefixId { get; set; }
+
+    public virtual Company Company { get; set; } = null!;
+
+    public virtual DivisionPrefix? DivisionPrefix { get; set; }
     [JsonIgnore]
     public virtual ICollection<Division> InverseUpperDivision { get; set; } = new List<Division>();
 
-    [JsonPropertyName("upper_division")]
+    public virtual ICollection<PermissionsOfDivision> PermissionsOfDivisions { get; set; } = new List<PermissionsOfDivision>();
+
     public virtual Division? UpperDivision { get; set; }
+
     [JsonIgnore]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

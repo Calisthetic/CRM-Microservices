@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace UsersAPI.Models;
 
@@ -21,25 +22,24 @@ public partial class User
 
     public string Password { get; set; } = null!;
 
-    public int DivisionId { get; set; }
-
-    public int CompanyId { get; set; }
-
-    public int RoleId { get; set; }
+    public int? DivisionId { get; set; }
 
     public short VacationCount { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual Company Company { get; set; } = null!;
+    public int? UpperUserId { get; set; }
 
-    public virtual Division Division { get; set; } = null!;
+    public virtual Division? Division { get; set; }
+
+    [JsonIgnore]
+    public virtual ICollection<User> InverseUpperUser { get; set; } = new List<User>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<ProfileImage> ProfileImages { get; set; } = new List<ProfileImage>();
-
-    public virtual Role Role { get; set; } = null!;
+    [JsonIgnore]
+    public virtual User? UpperUser { get; set; }
 
     public virtual ICollection<UsersLike> UsersLikeCreatorUsers { get; set; } = new List<UsersLike>();
 

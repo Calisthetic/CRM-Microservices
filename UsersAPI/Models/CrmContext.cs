@@ -19,13 +19,17 @@ public partial class CrmContext : DbContext
 
     public virtual DbSet<Division> Divisions { get; set; }
 
+    public virtual DbSet<DivisionPrefix> DivisionPrefixes { get; set; }
+
     public virtual DbSet<LikeType> LikeTypes { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
-    public virtual DbSet<ProfileImage> ProfileImages { get; set; }
+    public virtual DbSet<Permission> Permissions { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<PermissionsOfDivision> PermissionsOfDivisions { get; set; }
+
+    public virtual DbSet<ProfileImage> ProfileImages { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -42,15 +46,37 @@ public partial class CrmContext : DbContext
         modelBuilder.Entity<Company>(entity =>
         {
             entity.Property(e => e.CompanyName).HasMaxLength(40);
+
+            entity.HasOne(d => d.UpperCompany).WithMany(p => p.InverseUpperCompany)
+                .HasForeignKey(d => d.UpperCompanyId)
+                .HasConstraintName("FK_Companies_Companies");
         });
 
         modelBuilder.Entity<Division>(entity =>
         {
             entity.Property(e => e.DivisionName).HasMaxLength(40);
 
+            entity.HasOne(d => d.Company).WithMany(p => p.Divisions)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("FK_Divisions_Companies");
+
+            entity.HasOne(d => d.DivisionPrefix).WithMany(p => p.Divisions)
+                .HasForeignKey(d => d.DivisionPrefixId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Divisions_DivisionPrefixes");
+
             entity.HasOne(d => d.UpperDivision).WithMany(p => p.InverseUpperDivision)
                 .HasForeignKey(d => d.UpperDivisionId)
                 .HasConstraintName("FK_Divisions_Divisions");
+        });
+
+        modelBuilder.Entity<DivisionPrefix>(entity =>
+        {
+            entity.Property(e => e.DivisionPrefixName).HasMaxLength(20);
+
+            entity.HasOne(d => d.UpperDivisionPrefix).WithMany(p => p.InverseUpperDivisionPrefix)
+                .HasForeignKey(d => d.UpperDivisionPrefixId)
+                .HasConstraintName("FK_DivisionPrefixes_DivisionPrefixes");
         });
 
         modelBuilder.Entity<LikeType>(entity =>
@@ -69,17 +95,32 @@ public partial class CrmContext : DbContext
                 .HasConstraintName("FK_Notifications_Users");
         });
 
+        modelBuilder.Entity<Permission>(entity =>
+        {
+            entity.Property(e => e.PermissionName).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<PermissionsOfDivision>(entity =>
+        {
+            entity.HasKey(e => e.PermissionOfDivisionId);
+
+            entity.HasOne(d => d.Division).WithMany(p => p.PermissionsOfDivisions)
+                .HasForeignKey(d => d.DivisionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PermissionsOfDivisions_Divisions");
+
+            entity.HasOne(d => d.Permission).WithMany(p => p.PermissionsOfDivisions)
+                .HasForeignKey(d => d.PermissionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PermissionsOfDivisions_Permissions");
+        });
+
         modelBuilder.Entity<ProfileImage>(entity =>
         {
             entity.HasOne(d => d.User).WithMany(p => p.ProfileImages)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ProfileImages_Users");
-        });
-
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.Property(e => e.RoleName).HasMaxLength(40);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -94,20 +135,14 @@ public partial class CrmContext : DbContext
             entity.Property(e => e.ThirdName).HasMaxLength(20);
             entity.Property(e => e.VacationCount).HasDefaultValueSql("((28))");
 
-            entity.HasOne(d => d.Company).WithMany(p => p.Users)
-                .HasForeignKey(d => d.CompanyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Users_Companies");
-
             entity.HasOne(d => d.Division).WithMany(p => p.Users)
                 .HasForeignKey(d => d.DivisionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Users_Divisions");
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Users_Divisions1");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.Users)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Users_Roles");
+            entity.HasOne(d => d.UpperUser).WithMany(p => p.InverseUpperUser)
+                .HasForeignKey(d => d.UpperUserId)
+                .HasConstraintName("FK_Users_Users");
         });
 
         modelBuilder.Entity<UsersLike>(entity =>

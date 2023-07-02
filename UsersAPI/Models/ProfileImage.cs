@@ -11,6 +11,7 @@ public partial class ProfileImage
     public int UserId { get; set; }
 
     public int ImageId { get; set; }
+
     [JsonIgnore]
     public virtual User User { get; set; } = null!;
 }

@@ -9,6 +9,13 @@ public partial class Company
     public int CompanyId { get; set; }
 
     public string CompanyName { get; set; } = null!;
+
+    public int? UpperCompanyId { get; set; }
+
     [JsonIgnore]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
+
+    public virtual ICollection<Company> InverseUpperCompany { get; set; } = new List<Company>();
+
+    public virtual Company? UpperCompany { get; set; }
 }
