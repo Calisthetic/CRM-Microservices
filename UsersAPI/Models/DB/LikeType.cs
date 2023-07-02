@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace UsersAPI.Models;
+namespace UsersAPI.Models.DB;
 
 public partial class LikeType
 {

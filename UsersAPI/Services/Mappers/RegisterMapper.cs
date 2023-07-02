@@ -1,5 +1,5 @@
 ﻿using Mapster;
-using UsersAPI.Models;
+using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming;
 using UsersAPI.Models.DTOs.Outgoing;
 

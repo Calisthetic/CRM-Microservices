@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using UsersAPI.Configurations;
 //using Microsoft.OpenApi.Filters;
-using UsersAPI.Models;
+using UsersAPI.Models.DB;
 using UsersAPI.Services.Mappers;
 
 

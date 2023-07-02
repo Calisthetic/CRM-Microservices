@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace UsersAPI.Models;
+namespace UsersAPI.Models.DB;
 
 public partial class CrmContext : DbContext
 {

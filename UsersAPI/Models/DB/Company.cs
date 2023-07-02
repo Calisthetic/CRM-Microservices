@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace UsersAPI.Models;
+namespace UsersAPI.Models.DB;
 
 public partial class Company
 {

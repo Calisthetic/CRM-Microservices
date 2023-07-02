@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using UsersAPI.Configurations;
-using UsersAPI.Models;
+using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming;
 using UsersAPI.Models.DTOs.Outgoing;
 
