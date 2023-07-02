@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace UsersAPI.Services.Mappers
 {
-    public static class DepInj
+    public static class AddMappingDep
     {
         public static IServiceCollection AddMappings(this IServiceCollection services)
         {

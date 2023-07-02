@@ -6,7 +6,8 @@
 
 - Database-first
 - EF Core
-- AutoMapper
+- JWTs
+- Mapster
 - DbContext:
 
 ```bash
