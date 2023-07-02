@@ -54,7 +54,8 @@ namespace UsersAPI.Controllers
             //    .Include(x => x.Division).ThenInclude(x => x.DivisionPrefix)
             //    .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).ToListAsync());
             //return Ok(_context.Users);
-            return Ok(_context.Users.ProjectToType<UserInfoDto>());
+            return Ok(_mapper.From(_context.Users.Include(x => x.UsersTimeOffs).Include(x => x.UpperUser).ThenInclude(x => x.Division)
+                .Include(x => x.UpperUser).ThenInclude(x => x.Division).ThenInclude(x => x.DivisionPrefix)).ProjectToType<UserInfoDto>());
         }
 
         // GET: api/Users/5
@@ -163,12 +164,11 @@ namespace UsersAPI.Controllers
             if (!ModelState.IsValid) 
                 return new JsonResult("Something went wrong") { StatusCode = 500 };
 
-            //var newUser = _mapper.Map<User>(user);
-            //await _context.Users.AddAsync(newUser);
+            var newUser = user.Adapt<User>();
+            await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
 
-            return Ok();
-            //return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
+            return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
         }
 
         // POST: api/Users

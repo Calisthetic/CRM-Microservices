@@ -30,7 +30,9 @@ namespace UsersAPI.Models.DTOs.Outgoing
         [JsonPropertyName("profile_image")]
         public string? ProfileImage { get; set; }
         [JsonPropertyName("time_off")]
-        public virtual UsersTimeOff? TimeOff { get; set; }
+        public UsersTimeOff? TimeOff { get; set; }
+        [JsonPropertyName("upper_user")]
+        public UpperUserInfoDto? UpperUser { get; set; }
     }
 }
 

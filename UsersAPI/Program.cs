@@ -60,9 +60,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-//builder.Services.AddSingleton<IMapper, ServiceMapper>();
-
 builder.Services.AddControllers();
 builder.Services.AddMappings();
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
