@@ -45,20 +45,23 @@ namespace UsersAPI.Controllers
 
         // GET: api/user/division/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Division>> GetDivision(int id)
+        public async Task<ActionResult<DivisionInfoWithAddsDto>> GetDivision(int id)
         {
           if (_context.Divisions == null)
           {
               return NotFound();
           }
-            var division = await _context.Divisions.FindAsync(id);
+            var division = await _context.Divisions
+                .Include(x => x.DivisionPrefix).Include(x => x.Company)
+                .Include(x => x.UpperDivision).Include(x => x.InverseUpperDivision)
+                .FirstOrDefaultAsync(x => x.DivisionId == id);
 
             if (division == null)
             {
                 return NotFound();
             }
 
-            return division;
+            return division.Adapt<DivisionInfoWithAddsDto>();
         }
 
         // PUT: api/user/division/5

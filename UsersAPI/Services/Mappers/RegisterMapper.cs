@@ -48,6 +48,15 @@ namespace UsersAPI.Services.Mappers
                 .Map(x => x.InverseUpperDivision, x => x.InverseUpperDivision == null ? null : 
                     x.InverseUpperDivision.Count == 0 ? null : x.InverseUpperDivision)
                 .RequireDestinationMemberSource(true);
+            config.NewConfig<Division, DivisionInfoWithAddsDto>()
+                .Map(x => x.DivisionPrefix, x => x.DivisionPrefix == null ? null : x.DivisionPrefix.DivisionPrefixName)
+                .Map(x => x.CompanyName, x => x.Company.CompanyName)
+                .Map(x => x.UpperDivision, x => x.UpperDivision == null ? null : x.UpperDivision.Adapt<DivisionAddInfoDto>())
+                .Map(x => x.LowerDivision, x => x.InverseUpperDivision.Count == 0 ? null : x.InverseUpperDivision.First().Adapt<DivisionAddInfoDto>())
+                .RequireDestinationMemberSource(true);
+            config.NewConfig<Division, DivisionAddInfoDto>()
+                .Map(x => x.DivisionPrefix, x => x.DivisionPrefix == null ? null : x.DivisionPrefix.DivisionPrefixName)
+                .RequireDestinationMemberSource(true);
         }
     }
 }
