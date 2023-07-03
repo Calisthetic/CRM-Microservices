@@ -12,7 +12,7 @@ namespace UsersAPI.Models.DTOs.Outgoing
         public string DivisionName { get; set; } = null!;
 
         public string Company { get; set; } = null!;
-        [JsonPropertyName("upper_division")]
+        [JsonPropertyName("lower_division")]
         public List<DivisionsTreeDto>? InverseUpperDivision { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
+using UsersAPI.Models.DTOs.Incoming;
 using UsersAPI.Models.DTOs.Outgoing;
 
 namespace UsersAPI.Controllers
@@ -27,13 +28,18 @@ namespace UsersAPI.Controllers
 
         // GET: api/user/division/tree
         [HttpGet("tree")]
-        public async Task<ActionResult<IEnumerable<Division>>> GetDivisions()
+        public async Task<ActionResult<IEnumerable<DivisionsTreeDto>>> GetDivisions()
         {
             if (_context.Divisions == null)
             {
                 return NotFound();
             }
-            return Ok(_mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null).Include(x => x.InverseUpperDivision)).ProjectToType<DivisionsTreeDto>());
+            return Ok( await _mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null)
+                .Include(x => x.InverseUpperDivision)
+                .ThenInclude(x => x.InverseUpperDivision)
+                .ThenInclude(x => x.InverseUpperDivision)
+                .ThenInclude(x => x.InverseUpperDivision)
+            ).ProjectToType<DivisionsTreeDto>().ToListAsync());
         }
 
         // GET: api/user/division/5
@@ -57,7 +63,7 @@ namespace UsersAPI.Controllers
         // PUT: api/user/division/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDivision(int id, Division division)
+        public async Task<IActionResult> PutDivision(int id, DivisionUpdateDto division)
         {
             if (id != division.DivisionId)
             {
@@ -87,18 +93,18 @@ namespace UsersAPI.Controllers
 
         // POST: api/user/division
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Division>> PostDivision(Division division)
-        {
-          if (_context.Divisions == null)
-          {
-              return Problem("Entity set 'CrmContext.Divisions'  is null.");
-          }
-            _context.Divisions.Add(division);
-            await _context.SaveChangesAsync();
+        //[HttpPost]
+        //public async Task<ActionResult<Division>> PostDivision(DivisionAddNewDto division)
+        //{
+        //    if (_context.Divisions == null)
+        //    {
+        //        return Problem("Entity set 'CrmContext.Divisions'  is null.");
+        //    }
+        //    _context.Divisions.Add(division);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDivision", new { id = division.DivisionId }, division);
-        }
+        //    return CreatedAtAction("GetDivision", new { id = division.DivisionId }, division);
+        //}
 
         // DELETE: api/user/division/5
         [HttpDelete("{id}")]
