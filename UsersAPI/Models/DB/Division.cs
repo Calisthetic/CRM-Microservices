@@ -19,11 +19,10 @@ public partial class Division
     public virtual Company Company { get; set; } = null!;
 
     public virtual DivisionPrefix? DivisionPrefix { get; set; }
-    [JsonIgnore]
+    //[JsonIgnore]
     public virtual ICollection<Division> InverseUpperDivision { get; set; } = new List<Division>();
 
     public virtual ICollection<PermissionsOfDivision> PermissionsOfDivisions { get; set; } = new List<PermissionsOfDivision>();
-
     public virtual Division? UpperDivision { get; set; }
 
     [JsonIgnore]

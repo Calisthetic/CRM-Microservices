@@ -36,6 +36,14 @@ namespace UsersAPI.Services.Mappers
                 .Map(x => x.StartTimeOff, x => DateTime.Parse(x.StartTimeOff))
                 .Map(x => x.EndTimeOff, x => DateTime.Parse(x.EndTimeOff))
                 .RequireDestinationMemberSource(false);
+
+            // Divisions
+            config.NewConfig<Division, DivisionsThreeDto>()
+                .Map(x => x.DivisionId, x => x.DivisionId)
+                .Map(x => x.DivisionName, x => x.DivisionName)
+                .Map(x => x.Company, x => x.Company.CompanyName)
+                .Map(x => x.InverseUpperDivision, x => x.InverseUpperDivision.Adapt<List<DivisionsThreeDto>>())
+                .RequireDestinationMemberSource(true);
         }
     }
 }
