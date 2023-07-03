@@ -3,7 +3,7 @@ using UsersAPI.Models.DB;
 
 namespace UsersAPI.Models.DTOs.Outgoing
 {
-    public class DivisionsThreeDto
+    public class DivisionsTreeDto
     {
         [JsonPropertyName("id")]
         public int DivisionId { get; set; }
@@ -13,6 +13,6 @@ namespace UsersAPI.Models.DTOs.Outgoing
 
         public string Company { get; set; } = null!;
         [JsonPropertyName("upper_division")]
-        public List<DivisionsThreeDto>? InverseUpperDivision { get; set; }
+        public List<DivisionsTreeDto>? InverseUpperDivision { get; set; }
     }
 }

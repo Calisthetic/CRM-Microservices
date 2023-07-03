@@ -25,15 +25,15 @@ namespace UsersAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/user/division
-        [HttpGet]
+        // GET: api/user/division/tree
+        [HttpGet("tree")]
         public async Task<ActionResult<IEnumerable<Division>>> GetDivisions()
         {
             if (_context.Divisions == null)
             {
                 return NotFound();
             }
-            return Ok(_mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null).Include(x => x.InverseUpperDivision)).ProjectToType<DivisionsThreeDto>());
+            return Ok(_mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null).Include(x => x.InverseUpperDivision)).ProjectToType<DivisionsTreeDto>());
         }
 
         // GET: api/user/division/5

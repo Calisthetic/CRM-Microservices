@@ -38,11 +38,11 @@ namespace UsersAPI.Services.Mappers
                 .RequireDestinationMemberSource(false);
 
             // Divisions
-            config.NewConfig<Division, DivisionsThreeDto>()
+            config.NewConfig<Division, DivisionsTreeDto>()
                 .Map(x => x.DivisionId, x => x.DivisionId)
                 .Map(x => x.DivisionName, x => x.DivisionName)
                 .Map(x => x.Company, x => x.Company.CompanyName)
-                .Map(x => x.InverseUpperDivision, x => x.InverseUpperDivision.Adapt<List<DivisionsThreeDto>>())
+                .Map(x => x.InverseUpperDivision, x => x.InverseUpperDivision.Adapt<List<DivisionsTreeDto>>())
                 .RequireDestinationMemberSource(true);
         }
     }
