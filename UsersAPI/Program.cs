@@ -65,7 +65,8 @@ builder.Services.AddAuthentication(options =>
 //    options.SuppressAsyncSuffixInActionNames = false;
 //});
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 builder.Services.AddMappings();
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
