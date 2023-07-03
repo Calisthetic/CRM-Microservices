@@ -25,7 +25,7 @@ namespace UsersAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Divisions
+        // GET: api/user/division
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Division>>> GetDivisions()
         {
@@ -33,11 +33,10 @@ namespace UsersAPI.Controllers
             {
                 return NotFound();
             }
-            //return Ok(_context.Divisions.Where(x => x.UpperDivisionId == null).Include(x => x.InverseUpperDivision));
             return Ok(_mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null).Include(x => x.InverseUpperDivision)).ProjectToType<DivisionsThreeDto>());
         }
 
-        // GET: api/Divisions/5
+        // GET: api/user/division/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Division>> GetDivision(int id)
         {
@@ -55,7 +54,7 @@ namespace UsersAPI.Controllers
             return division;
         }
 
-        // PUT: api/Divisions/5
+        // PUT: api/user/division/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDivision(int id, Division division)
@@ -86,7 +85,7 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Divisions
+        // POST: api/user/division
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Division>> PostDivision(Division division)
@@ -101,7 +100,7 @@ namespace UsersAPI.Controllers
             return CreatedAtAction("GetDivision", new { id = division.DivisionId }, division);
         }
 
-        // DELETE: api/Divisions/5
+        // DELETE: api/user/division/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDivision(int id)
         {

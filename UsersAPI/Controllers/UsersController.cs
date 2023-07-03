@@ -22,7 +22,7 @@ using UsersAPI.Models.DTOs.Outgoing;
 
 namespace UsersAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/user")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -37,7 +37,7 @@ namespace UsersAPI.Controllers
             _configuration = configuration;
         }
 
-        // GET: api/Users
+        // GET: api/user
         [HttpGet]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,Adn"), Authorize(Roles = "Admidn")]
         public async Task<ActionResult<IList<UserInfoDto>>> GetUsers()
@@ -57,7 +57,7 @@ namespace UsersAPI.Controllers
                 .Include(x => x.UpperUser).ThenInclude(x => x.Division).ThenInclude(x => x.DivisionPrefix)).ProjectToType<UserInfoDto>());
         }
 
-        // GET: api/Users/5
+        // GET: api/user/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
@@ -124,7 +124,7 @@ namespace UsersAPI.Controllers
         }
 
 
-        // PUT: api/Users/5
+        // PUT: api/user/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
@@ -154,7 +154,7 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/user
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserAddNewDto user)
         {
@@ -170,7 +170,7 @@ namespace UsersAPI.Controllers
             return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
         }
 
-        // POST: api/Users
+        // POST: api/user/login
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<SuccessLoginDto>> LoginUser(UserLoginRequestDto user)
@@ -189,8 +189,8 @@ namespace UsersAPI.Controllers
             //return Ok(existUser);
             return Ok(new SuccessLoginDto() { token = GenerateToken(existUser) });
         }
-        
-        // POST: api/Users
+
+        // POST: api/user/register
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<User>> RegisterUser(UserLoginRequestDto user)
@@ -207,7 +207,7 @@ namespace UsersAPI.Controllers
             return Ok(new SuccessLoginDto() { token = GenerateToken(existUser) });
         }
 
-        // DELETE: api/Users/5
+        // DELETE: api/user/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
