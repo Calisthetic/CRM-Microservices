@@ -34,7 +34,8 @@ namespace UsersAPI.Controllers
             {
                 return NotFound();
             }
-            return Ok( await _mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null)
+
+            return Ok(await _mapper.From(_context.Divisions.Where(x => x.UpperDivisionId == null)
                 .Include(x => x.InverseUpperDivision)
                 .ThenInclude(x => x.InverseUpperDivision)
                 .ThenInclude(x => x.InverseUpperDivision)

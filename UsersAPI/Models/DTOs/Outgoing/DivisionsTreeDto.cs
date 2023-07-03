@@ -1,18 +1,24 @@
-﻿using System.Text.Json.Serialization;
+﻿using Mapster;
 using UsersAPI.Models.DB;
+using Newtonsoft.Json;
 
 namespace UsersAPI.Models.DTOs.Outgoing
 {
     public class DivisionsTreeDto
     {
-        [JsonPropertyName("id")]
+        [JsonProperty("id")]
         public int DivisionId { get; set; }
 
-        [JsonPropertyName("name")]
+        [JsonProperty("name")]
         public string DivisionName { get; set; } = null!;
-
-        public string Company { get; set; } = null!;
-        [JsonPropertyName("lower_division")]
-        public List<DivisionsTreeDto>? InverseUpperDivision { get; set; }
+        [JsonProperty("company")]
+        public string CompanyName { get; set; } = null!;
+        [JsonProperty("lower_division")]
+        public List<DivisionsTreeItemDto>? InverseUpperDivision { get; set; }
+        public bool ShouldSerializeInverseUpperDivision()
+        {
+            // don't serialize the Manager property if an employee is their own manager
+            return false;// (InverseUpperDivision != null && InverseUpperDivision.Count < 0);
+        }
     }
 }
