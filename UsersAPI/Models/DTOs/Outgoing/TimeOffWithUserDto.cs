@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using UsersAPI.Models.DTOs.Outgoing.Users;
 
 namespace UsersAPI.Models.DTOs.Outgoing
 {

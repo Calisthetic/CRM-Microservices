@@ -17,8 +17,8 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using UsersAPI.Configurations;
 using UsersAPI.Models.DB;
-using UsersAPI.Models.DTOs.Incoming;
-using UsersAPI.Models.DTOs.Outgoing;
+using UsersAPI.Models.DTOs.Incoming.Users;
+using UsersAPI.Models.DTOs.Outgoing.Users;
 
 namespace UsersAPI.Controllers
 {

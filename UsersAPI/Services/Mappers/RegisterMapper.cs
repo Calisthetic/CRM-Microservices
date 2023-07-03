@@ -1,7 +1,10 @@
 ﻿using Mapster;
 using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming;
+using UsersAPI.Models.DTOs.Incoming.Users;
 using UsersAPI.Models.DTOs.Outgoing;
+using UsersAPI.Models.DTOs.Outgoing.Divisions;
+using UsersAPI.Models.DTOs.Outgoing.Users;
 
 namespace UsersAPI.Services.Mappers
 {

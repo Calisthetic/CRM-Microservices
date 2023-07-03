@@ -1,4 +1,4 @@
-﻿namespace UsersAPI.Models.DTOs.Incoming
+﻿namespace UsersAPI.Models.DTOs.Incoming.Users
 {
     public class UserAddNewDto
     {

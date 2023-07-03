@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using UsersAPI.Models.DB;
 
-namespace UsersAPI.Models.DTOs.Outgoing
+namespace UsersAPI.Models.DTOs.Outgoing.Divisions
 {
     public class DivisionsTreeDto
     {

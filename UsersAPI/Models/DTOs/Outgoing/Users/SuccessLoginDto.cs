@@ -1,4 +1,4 @@
-﻿namespace UsersAPI.Models.DTOs.Outgoing
+﻿namespace UsersAPI.Models.DTOs.Outgoing.Users
 {
     public class SuccessLoginDto
     {

@@ -1,9 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using UsersAPI.Models.DB;
 
-namespace UsersAPI.Models.DTOs.Outgoing
+namespace UsersAPI.Models.DTOs.Outgoing.Users
 {
-    public class UserInfoDto
+    public class UserShortInfoDto
     {
         [JsonPropertyName("id")]
         public int UserId { get; set; }
@@ -19,9 +18,6 @@ namespace UsersAPI.Models.DTOs.Outgoing
         public string? PhoneNumber { get; set; }
         public string Email { get; set; } = null!;
 
-        public string Login { get; set; } = null!;
-        public string Password { get; set; } = null!;
-
         public string? Division { get; set; }
         public string Company { get; set; } = null!;
 
@@ -30,10 +26,5 @@ namespace UsersAPI.Models.DTOs.Outgoing
 
         [JsonPropertyName("profile_image")]
         public string? ProfileImage { get; set; }
-        [JsonPropertyName("time_off")]
-        public UsersTimeOff? TimeOff { get; set; }
-        [JsonPropertyName("upper_user")]
-        public UpperUserInfoDto? UpperUser { get; set; }
     }
 }
-
