@@ -1,15 +1,9 @@
-using Mapster;
-using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using UsersAPI.Configurations;
-//using Microsoft.OpenApi.Filters;
 using UsersAPI.Models.DB;
 using UsersAPI.Services.Mappers;
 
@@ -60,16 +54,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Created at...
 //builder.Services.AddMvc(options =>
 //{
 //    options.SuppressAsyncSuffixInActionNames = false;
 //});
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
+// Dev version
+builder.Services.AddControllers();
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
+
 builder.Services.AddMappings();
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
-//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<CrmContext>();
 
 var MyAllowSpecificOrigins = "MyPolicy";
