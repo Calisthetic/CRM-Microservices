@@ -95,20 +95,34 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/user/division
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Division>> PostDivision(DivisionAddNewDto division)
-        //{
-        //    if (_context.Divisions == null)
-        //    {
-        //        return Problem("Entity set 'CrmContext.Divisions'  is null.");
-        //    }
-        //    _context.Divisions.Add(division);
-        //    await _context.SaveChangesAsync();
+        //POST: api/user/division
+        [HttpPost]
+        public async Task<ActionResult<Division>> PostDivision(DivisionAddNewDto division)
+        {
+            if (_context.Divisions == null)
+            {
+                return Problem("Entity set 'CrmContext.Divisions' is null.");
+            }
 
-        //    return CreatedAtAction("GetDivision", new { id = division.DivisionId }, division);
-        //}
+            // Company is exist
+            // Prefix is exist
+            // Lower division != null
+            // // Lower division exist
+            // // Upper division exist
+            // // LowerDivision.UpperDivision == UpperDivision
+            // // if upper > lower
+            // // // new division.upperDivisionId = upperDivision.Id
+            // // // lowerDivision.upperDivision = newDivision.Id
+            // else if Upper division != null
+            // // Upper Division exist
+            // // new division.upperDivisionId = upperDivision.Id
+
+            //_context.Divisions.Add(division);
+            await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetDivision", new { id = division.DivisionId }, division);
+            return Ok();
+        }
 
         // DELETE: api/user/division/5
         [HttpDelete("{id}")]
