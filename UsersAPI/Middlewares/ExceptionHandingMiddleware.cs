@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text.Json;
 using UsersAPI.Models.DTOs.Outgoing;
 
@@ -21,6 +23,22 @@ namespace UsersAPI.Middlewares
             {
                 await _next(httpContext);
             }
+            catch (DbUpdateException ex)
+            {
+                await HandleExceptionAsync(httpContext, ex, HttpStatusCode.InternalServerError, "Database saving error");
+            }
+            catch (DivideByZeroException ex)
+            {
+                await HandleExceptionAsync(httpContext, ex, HttpStatusCode.InternalServerError, "Divide by zero");
+            }
+            catch (ValidationException ex)
+            {
+                await HandleExceptionAsync(httpContext, ex, HttpStatusCode.BadRequest, "Input value is not valid");
+            }
+            catch (NullReferenceException ex)
+            {
+                await HandleExceptionAsync(httpContext, ex, HttpStatusCode.InternalServerError, "Get nulls...");
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(httpContext, ex, HttpStatusCode.InternalServerError, "Internal server error");
@@ -38,7 +56,7 @@ namespace UsersAPI.Middlewares
 
             ErrorDto badResponse = new ErrorDto() {
                 Error = message,
-                Exception = ex.Message
+                Exception = ex.Message //ex.GetType().Name
             };
 
             string result  = JsonSerializer.Serialize(badResponse);
