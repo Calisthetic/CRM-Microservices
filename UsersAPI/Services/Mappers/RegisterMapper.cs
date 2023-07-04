@@ -62,7 +62,7 @@ namespace UsersAPI.Services.Mappers
                 .Map(x => x.DivisionPrefix, x => x.DivisionPrefix == null ? null : x.DivisionPrefix.DivisionPrefixName)
                 .RequireDestinationMemberSource(true);
             config.NewConfig<DivisionAddNewDto, Division>()
-                .RequireDestinationMemberSource(true);
+                .RequireDestinationMemberSource(false);
         }
     }
 }
