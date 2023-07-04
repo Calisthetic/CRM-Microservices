@@ -75,25 +75,101 @@ namespace UsersAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(division).State = EntityState.Modified;
-
-            try
+            if (!ModelState.IsValid)
             {
+                return BadRequest();
+            }
+
+            var currentDivision = await _context.Divisions.FindAsync(id);
+            if (currentDivision == null)
+            {
+                return NotFound();
+            }
+
+            if (division.LowerDivisionId.HasValue && division.UpperDivisionId.HasValue)
+            {
+                var lowerDivision = await _context.Divisions.Include(x => x.UpperDivision).FirstOrDefaultAsync(e => e.DivisionId == division.LowerDivisionId);
+                if (lowerDivision == null)
+                {
+                    return BadRequest(new ErrorDto() { Error = "Lower division don't exists" });
+                }
+
+                var upperDivision = await _context.Divisions.FirstOrDefaultAsync(e => e.DivisionId == division.UpperDivisionId);
+                if (upperDivision == null)
+                {
+                    return BadRequest(new ErrorDto() { Error = "Upper division don't exists" });
+                }
+
+                // Если нижний ссылается на высший
+                if (lowerDivision.UpperDivisionId == upperDivision.DivisionId ||
+                    lowerDivision?.UpperDivision?.UpperDivisionId == upperDivision.DivisionId)
+                { // Либо нижний -> высший -> высший
+                    currentDivision.DivisionName = division.DivisionName;
+                    currentDivision.CompanyId = division.CompanyId;
+                    currentDivision.DivisionPrefixId = division.DivisionPrefixId;
+
+                    lowerDivision.UpperDivisionId = division.DivisionId;
+                    await _context.SaveChangesAsync();
+
+                    return NoContent();
+                }
+                return BadRequest(new ErrorDto() { Error = "Incorrect upper and lower divisions" });
+            }
+            else if (division.LowerDivisionId.HasValue)
+            {
+                var lowerDivision = await _context.Divisions.Include(x => x.UpperDivision).FirstOrDefaultAsync(e => e.DivisionId == division.LowerDivisionId);
+                if (lowerDivision == null)
+                {
+                    return BadRequest(new ErrorDto() { Error = "Lower division don't exists" });
+                }
+
+                if (lowerDivision.UpperDivisionId != null)
+                { // Если у подчинённой есть главенствующая роль
+                    var upperDivisionOfLower = await _context.Divisions.FirstOrDefaultAsync(x => x.DivisionId == lowerDivision.UpperDivisionId);
+                    if (upperDivisionOfLower == null)
+                    {
+                        return BadRequest(new ErrorDto() { Error = "Database error" });
+                    }
+
+                    if (upperDivisionOfLower.UpperDivisionId.HasValue)
+                    {
+                        return BadRequest(new ErrorDto() { Error = "Please specify upper division" });
+                    }
+                }
+
+                currentDivision.DivisionName = division.DivisionName;
+                currentDivision.CompanyId = division.CompanyId;
+                currentDivision.DivisionPrefixId = division.DivisionPrefixId;
+
+                lowerDivision.UpperDivisionId = division.DivisionId;
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DivisionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                return NoContent();
+            }
+            else if (division.UpperDivisionId.HasValue)
+            {
+                var upperDivision = await _context.Divisions.FirstOrDefaultAsync(e => e.DivisionId == division.LowerDivisionId);
+                if (upperDivision != null)
+                {
+                    return BadRequest(new ErrorDto() { Error = "Upper division don't exists" });
+                }
+
+                currentDivision.DivisionName = division.DivisionName;
+                currentDivision.CompanyId = division.CompanyId;
+                currentDivision.DivisionPrefixId = division.DivisionPrefixId;
+
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            else
+            {
+                currentDivision.DivisionName = division.DivisionName;
+                currentDivision.CompanyId = division.CompanyId;
+                currentDivision.DivisionPrefixId = division.DivisionPrefixId;
+
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
         }
 
         //POST: api/user/division
@@ -110,7 +186,7 @@ namespace UsersAPI.Controllers
                 return BadRequest(new ErrorDto() { Error = "Incorrect" });
             }
 
-            if (division.LowerDivisionId != null && division.UpperDivisionId != null)
+            if (division.LowerDivisionId.HasValue && division.UpperDivisionId.HasValue)
             {
                 var lowerDivision = await _context.Divisions.Include(x => x.UpperDivision).FirstOrDefaultAsync(e => e.DivisionId == division.LowerDivisionId);
                 if (lowerDivision == null)
@@ -124,31 +200,30 @@ namespace UsersAPI.Controllers
                     return BadRequest(new ErrorDto() { Error = "Upper division don't exists" });
                 }
 
+                // Если нижний ссылается на высший
                 if (lowerDivision.UpperDivisionId == upperDivision.DivisionId ||
                     lowerDivision?.UpperDivision?.UpperDivisionId == upperDivision.DivisionId)
-                {
+                { // Либо нижний -> высший -> высший
                     var newDivision = division.Adapt<Division>();
                     await _context.Divisions.AddAsync(newDivision);
                     await _context.SaveChangesAsync();
                     lowerDivision.UpperDivisionId = newDivision.DivisionId;
                     await _context.SaveChangesAsync();
 
-                    return Ok();
+                    return CreatedAtAction("CreateDivision", new { id = newDivision.DivisionId }, newDivision);
                 }
                 return BadRequest(new ErrorDto() { Error = "Incorrect upper and lower divisions" });
             }
             else if (division.LowerDivisionId.HasValue)
             {
-                // Подчинённая роль существует
                 var lowerDivision = await _context.Divisions.Include(x => x.UpperDivision).FirstOrDefaultAsync(e => e.DivisionId == division.LowerDivisionId);
                 if (lowerDivision == null)
                 {
                     return BadRequest(new ErrorDto() { Error = "Lower division don't exists" });
                 }
 
-                // Если у подчинённой есть главенствующая роль
-                if (lowerDivision.UpperDivision != null)
-                {
+                if (lowerDivision.UpperDivisionId != null)
+                { // Если у подчинённой есть главенствующая роль
                     var upperDivisionOfLower = await _context.Divisions.FirstOrDefaultAsync(x => x.DivisionId == lowerDivision.UpperDivisionId);
                     if (upperDivisionOfLower == null)
                     {
@@ -167,7 +242,7 @@ namespace UsersAPI.Controllers
                 lowerDivision.UpperDivisionId = newDivision.DivisionId;
                 await _context.SaveChangesAsync();
 
-                return Ok(); // Created at
+                return CreatedAtAction("CreateDivision", new { id = newDivision.DivisionId }, newDivision);
             }
             else if (division.UpperDivisionId.HasValue)
             {
@@ -181,7 +256,7 @@ namespace UsersAPI.Controllers
                 await _context.Divisions.AddAsync(newDivision);
                 await _context.SaveChangesAsync();
 
-                return Ok(); // Created at
+                return CreatedAtAction("CreateDivision", new { id = newDivision.DivisionId }, newDivision);
             }
             else
             {
@@ -189,9 +264,8 @@ namespace UsersAPI.Controllers
                 await _context.Divisions.AddAsync(newDivision);
                 await _context.SaveChangesAsync();
 
-                return Ok(); // Created at
+                return CreatedAtAction("CreateDivision", new { id = newDivision.DivisionId }, newDivision);
             }
-            //return CreatedAtAction("GetDivision", new { id = division.DivisionId }, division);
         }
 
         // DELETE: api/user/division/5

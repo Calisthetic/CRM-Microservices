@@ -63,6 +63,8 @@ namespace UsersAPI.Services.Mappers
                 .RequireDestinationMemberSource(true);
             config.NewConfig<DivisionAddNewDto, Division>()
                 .RequireDestinationMemberSource(false);
+            config.NewConfig<DivisionUpdateDto, Division>()
+                .RequireDestinationMemberSource(false);
         }
     }
 }
