@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 using UsersAPI.Configurations;
+using UsersAPI.Middlewares;
 using UsersAPI.Models.DB;
 using UsersAPI.Services.Mappers;
 
@@ -94,6 +95,8 @@ app.MapControllers();
 
 // Added
 app.UseAuthentication();
+
+app.UseMiddleware<ExceptionHandingMiddleware>();
 
 app.UseResponseCompression();
 app.UseCors(MyAllowSpecificOrigins);
