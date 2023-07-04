@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming;
+using UsersAPI.Models.DTOs.Incoming.Divisions;
 using UsersAPI.Models.DTOs.Incoming.Users;
 using UsersAPI.Models.DTOs.Outgoing;
 using UsersAPI.Models.DTOs.Outgoing.Divisions;
@@ -59,6 +60,8 @@ namespace UsersAPI.Services.Mappers
                 .RequireDestinationMemberSource(true);
             config.NewConfig<Division, DivisionAddInfoDto>()
                 .Map(x => x.DivisionPrefix, x => x.DivisionPrefix == null ? null : x.DivisionPrefix.DivisionPrefixName)
+                .RequireDestinationMemberSource(true);
+            config.NewConfig<DivisionAddNewDto, Division>()
                 .RequireDestinationMemberSource(true);
         }
     }
