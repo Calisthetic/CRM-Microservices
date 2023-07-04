@@ -33,6 +33,20 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
 
+var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtConfig:Secret").Value!);
+
+var tokenValidationParameter = new TokenValidationParameters()
+{
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(key),
+    ValidateIssuer = false, // for dev
+    ValidateAudience = false, // for dev
+    //RequireExpirationTime = false, // no refresh tokens
+    RequireExpirationTime = true,
+    ValidateLifetime = true,
+    ClockSkew = TimeSpan.Zero,
+};
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -41,19 +55,11 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(jwt =>
 {
-    var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtConfig:Secret").Value!);
-
     jwt.SaveToken = true;
-    jwt.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false, // for dev
-        ValidateAudience = false, // for dev
-        RequireExpirationTime = false, // no refresh tokens
-        ValidateLifetime = true,
-    };
+    jwt.TokenValidationParameters = tokenValidationParameter;
 });
+
+builder.Services.AddSingleton(tokenValidationParameter);
 
 // Created at...
 //builder.Services.AddMvc(options =>

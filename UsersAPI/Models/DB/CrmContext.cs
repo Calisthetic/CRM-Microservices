@@ -31,6 +31,8 @@ public partial class CrmContext : DbContext
 
     public virtual DbSet<ProfileImage> ProfileImages { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UsersLike> UsersLikes { get; set; }
@@ -38,7 +40,6 @@ public partial class CrmContext : DbContext
     public virtual DbSet<UsersTimeOff> UsersTimeOffs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=DESKTOP-GJJERNN;Initial Catalog=CRM;Integrated Security=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -121,6 +122,17 @@ public partial class CrmContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ProfileImages_Users");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.Property(e => e.AddedDate).HasColumnType("datetime");
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshTokens_Users");
         });
 
         modelBuilder.Entity<User>(entity =>

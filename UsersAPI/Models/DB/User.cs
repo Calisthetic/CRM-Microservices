@@ -38,7 +38,9 @@ public partial class User
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<ProfileImage> ProfileImages { get; set; } = new List<ProfileImage>();
-    [JsonIgnore]
+
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public virtual User? UpperUser { get; set; }
 
     public virtual ICollection<UsersLike> UsersLikeCreatorUsers { get; set; } = new List<UsersLike>();

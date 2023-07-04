@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using UsersAPI.Configurations;
 using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming.Users;
+using UsersAPI.Models.DTOs.Outgoing;
 using UsersAPI.Models.DTOs.Outgoing.Users;
 
 namespace UsersAPI.Controllers
@@ -27,19 +28,22 @@ namespace UsersAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly CrmContext _context;
+        private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
-        public UsersController(CrmContext context, IMapper mapper, IConfiguration configuration)
+        public UsersController(CrmContext context, IMapper mapper, 
+            IConfiguration configuration, TokenValidationParameters tokenValidationParameters)
         {
             _context = context;
             _mapper = mapper;
             _configuration = configuration;
+            _tokenValidationParameters = tokenValidationParameters;
         }
 
         // GET: api/user
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,Adn"), Authorize(Roles = "Admidn")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,AddUsers")]
         public async Task<ActionResult<IList<UserInfoDto>>> GetUsers()
         {
             if (_context.Users == null)
@@ -59,6 +63,7 @@ namespace UsersAPI.Controllers
 
         // GET: api/user/5
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,SddUsedrs")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             if (_context.Users == null)
@@ -173,7 +178,7 @@ namespace UsersAPI.Controllers
         // POST: api/user/login
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<SuccessLoginDto>> LoginUser(UserLoginRequestDto user)
+        public async Task<ActionResult<UserAuthResultDto>> LoginUser(UserLoginRequestDto user)
         {
             if (_context.Users == null)
                 return Problem("Entity set 'CrmContext.Users' is null.");
@@ -187,13 +192,13 @@ namespace UsersAPI.Controllers
                 return NotFound();
 
             //return Ok(existUser);
-            return Ok(new SuccessLoginDto() { token = GenerateToken(existUser) });
+            return Ok(await GenerateToken(existUser));
         }
 
         // POST: api/user/register
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<User>> RegisterUser(UserLoginRequestDto user)
+        public async Task<ActionResult<UserAuthResultDto>> RegisterUser(UserLoginRequestDto user)
         {
             if (_context.Users == null)
                 return Problem("Entity set 'CrmContext.Users' is null.");
@@ -204,7 +209,7 @@ namespace UsersAPI.Controllers
             if (existUser == null)
                 return NotFound();
 
-            return Ok(new SuccessLoginDto() { token = GenerateToken(existUser) });
+            return Ok(await GenerateToken(existUser));
         }
 
         // DELETE: api/user/5
@@ -232,7 +237,7 @@ namespace UsersAPI.Controllers
             return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
         }
 
-        private string GenerateToken(User user)
+        private async Task<UserAuthResultDto> GenerateToken(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration.GetSection("JwtConfig:Secret").Value!);
@@ -261,12 +266,122 @@ namespace UsersAPI.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1),
+                Expires = DateTime.UtcNow.Add(TimeSpan.Parse(_configuration.GetSection("JwtConfig:ExpiryTimeFrame").Value!)),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
 
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-            return jwtTokenHandler.WriteToken(token);
+            var jwtToken = jwtTokenHandler.WriteToken(token);
+
+            var refreshToken = new RefreshToken()
+            {
+                JwtId = token.Id,
+                Token = RandomStringGeneration(23),
+                AddedDate = DateTime.UtcNow,
+                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                IsRevoked = false,
+                IsUsed = false,
+                UserId = user.UserId
+            };
+
+            await _context.RefreshTokens.AddAsync(refreshToken);
+            await _context.SaveChangesAsync();
+
+            return new UserAuthResultDto()
+            {
+                Token = jwtToken,
+                RefreshToken = refreshToken.Token
+            };
+        }
+
+        [HttpPost("refresh_token")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto tokenRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ErrorDto() { Error = "Invalid parameters" });
+            }
+
+            var result = await VerifyAndGenerateToken(tokenRequest);
+            if (result == null)
+            {
+                return BadRequest(new ErrorDto() { Error = "Invalid tokens" });
+            }
+
+            return Ok(result);
+        }
+        private async Task<object?> VerifyAndGenerateToken(TokenRequestDto tokenRequest)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                _tokenValidationParameters.ValidateLifetime = false; // for testing
+
+                var tokenInVerification = jwtTokenHandler
+                    .ValidateToken(tokenRequest.Token, _tokenValidationParameters, out var validatedToken);
+
+                if (validatedToken is JwtSecurityToken jwtSecurityToken)
+                {
+                    var result = jwtSecurityToken.Header.Alg
+                        .Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
+
+                    if (result == false)
+                        return null;
+                }
+
+                var utcExpiryDate = long.Parse(tokenInVerification.Claims
+                    .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+
+                var expiryDate = UnixTimeStampToDateTime(utcExpiryDate);
+                if (expiryDate > DateTime.UtcNow)
+                    new ErrorDto() { Error = "ExpiredToken" };
+
+                var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
+
+                if (storedToken == null)
+                    return new ErrorDto() { Error = "Invalid tokens" };
+
+                if (storedToken.IsUsed)
+                    return new ErrorDto() { Error = "Invalid tokens" };
+                if (storedToken.IsRevoked)
+                    return new ErrorDto() { Error = "Invalid tokens" };
+
+                var jti = tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+                if (storedToken.JwtId != jti)
+                    return new ErrorDto() { Error = "Invalid tokens" };
+
+                if (storedToken.ExpiryDate < DateTime.UtcNow)
+                    return new ErrorDto() { Error = "Expired tokens" };
+
+                storedToken.IsUsed = true;
+                _context.RefreshTokens.Update(storedToken);
+                await _context.SaveChangesAsync();
+
+                var dbUser = await _context.Users.FindAsync(storedToken.UserId);
+                if (dbUser == null)
+                    return new ErrorDto() { Error = "Expired tokens" };
+
+                return await GenerateToken(dbUser);
+            }
+            catch
+            {
+                return new ErrorDto() { Error = "Server error" } ;
+            }
+        }
+        private DateTime UnixTimeStampToDateTime(long unixTimaStamp) 
+        {
+            var dateTimeVal = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTimeVal = dateTimeVal.AddSeconds(unixTimaStamp).ToUniversalTime();
+            return dateTimeVal;
+        }
+
+        private string RandomStringGeneration(int length)
+        {
+            var random = new Random();
+            var chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ1234567890abcdefghijklmnoprstuvwxyz_";
+
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
