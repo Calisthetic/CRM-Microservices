@@ -66,7 +66,6 @@ namespace UsersAPI.Controllers
         }
 
         // PUT: api/user/division/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDivision(int id, DivisionUpdateDto division)
         {
@@ -170,6 +169,64 @@ namespace UsersAPI.Controllers
                 await _context.SaveChangesAsync();
                 return NoContent();
             }
+        }
+
+        [HttpPut("permissions/{id}")]
+        public async Task<IActionResult> UpdateDivisionPermissions(int id, DivisionUpdatePermissionsDto division)
+        {
+            if (id != division.DivisionId)
+                return BadRequest();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (division.PermissionIds == null)
+                return BadRequest();
+
+            var currentDivision = await _context.Divisions.FindAsync(id);
+            if (currentDivision == null)
+            {
+                return NotFound();
+            }
+
+            // Remove existed permissions to current division
+            var existedPermissions = await _context.PermissionsOfDivisions.Where(x => x.DivisionId == id).ToListAsync();
+            if (division.PermissionIds.Length == 0)
+            {
+                _context.PermissionsOfDivisions.RemoveRange(existedPermissions);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+
+            for (int i = 0; i < division.PermissionIds.Length; i++)
+            {
+                // Searching for existed permission of division
+                var foundedPermissionOfDivision = existedPermissions.FirstOrDefault(x => x.PermissionId == division.PermissionIds[i]);
+                if (foundedPermissionOfDivision != null)
+                {
+                    // If already exist
+                    existedPermissions.Remove(foundedPermissionOfDivision);
+                    continue;
+                }
+
+                // If permission doesn't exists in database
+                if (await _context.Permissions.FirstOrDefaultAsync(x => x.PermissionId == division.PermissionIds[i]) == null)
+                {
+                    return BadRequest();
+                }
+
+                // If exists
+                await _context.PermissionsOfDivisions.AddAsync(new PermissionsOfDivision()
+                {
+                    PermissionId = division.PermissionIds[i],
+                    DivisionId = division.DivisionId,
+                });
+            }
+
+            _context.PermissionsOfDivisions.RemoveRange(existedPermissions);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         //POST: api/user/division
@@ -288,9 +345,5 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        private bool DivisionExists(int id)
-        {
-            return (_context.Divisions?.Any(e => e.DivisionId == id)).GetValueOrDefault();
-        }
     }
 }

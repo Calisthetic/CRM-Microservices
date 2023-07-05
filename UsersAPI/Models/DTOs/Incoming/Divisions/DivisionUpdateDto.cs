@@ -4,7 +4,7 @@ namespace UsersAPI.Models.DTOs.Incoming.Divisions
 {
     public class DivisionUpdateDto
     {
-        [JsonPropertyName("division_id")]
+        [JsonPropertyName("id")]
         public int DivisionId { get; set; }
 
         [JsonPropertyName("name")]

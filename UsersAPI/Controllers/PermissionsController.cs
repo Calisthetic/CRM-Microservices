@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
-using UsersAPI.Models.DTOs.Incoming;
+using UsersAPI.Models.DTOs.Incoming.Permissions;
 using UsersAPI.Models.DTOs.Outgoing;
 
 namespace UsersAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/user/permissions")]
     [ApiController]
     public class PermissionsController : ControllerBase
     {
@@ -66,15 +66,25 @@ namespace UsersAPI.Controllers
                 return Problem("Entity set 'CrmContext.Permissions' is null.");
             }
 
+            string randomName = string.Empty;
+            while (true)
+            {
+                randomName = RandomStringGeneration(8);
+                if (await _context.Permissions.FirstOrDefaultAsync(x => x.PermissionName == randomName) == null)
+                {
+                    break;
+                }
+            }
+
             var newPermission = new Permission()
             {
                 PermissionDescription = permission.PermissionDescription,
-                PermissionName = RandomStringGeneration(8)
+                PermissionName = randomName
             };
             _context.Permissions.Add(newPermission);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPermission", new { id = newPermission.PermissionId }, newPermission);
+            return CreatedAtAction("PostPermission", new { id = newPermission.PermissionId }, newPermission);
         }
 
         // DELETE: api/Permissions/5
