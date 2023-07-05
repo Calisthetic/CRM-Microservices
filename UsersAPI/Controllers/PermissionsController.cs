@@ -28,54 +28,49 @@ namespace UsersAPI.Controllers
 
         // GET: api/Permissions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PermissionDto>>> GetPermissions()
+        public async Task<ActionResult<IEnumerable<PermissionInfoDto>>> GetPermissions()
         {
           if (_context.Permissions == null)
           {
               return NotFound();
           }
-            return await _mapper.From(_context.Permissions).ProjectToType<PermissionDto>().ToListAsync();
+            return await _mapper.From(_context.Permissions).ProjectToType<PermissionInfoDto>().ToListAsync();
         }
 
         // PUT: api/Permissions/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPermission(int id, Permission permission)
+        public async Task<IActionResult> PutPermission(int id, PermissionUpdateDto permission)
         {
             if (id != permission.PermissionId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(permission).State = EntityState.Modified;
-
-            try
+            var currentPermission = await _context.Permissions.FindAsync(id);
+            if (currentPermission == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PermissionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            currentPermission.PermissionDescription = permission.PermissionDescription;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Permissions
         [HttpPost]
-        public async Task<ActionResult<Permission>> PostPermission(PermissionAddNew permission)
+        public async Task<ActionResult<Permission>> PostPermission(PermissionAddDto permission)
         {
             if (_context.Permissions == null)
             {
                 return Problem("Entity set 'CrmContext.Permissions' is null.");
             }
-            var newPermission = permission.Adapt<Permission>();
+
+            var newPermission = new Permission()
+            {
+                PermissionDescription = permission.PermissionDescription,
+                PermissionName = RandomStringGeneration(8)
+            };
             _context.Permissions.Add(newPermission);
             await _context.SaveChangesAsync();
 
@@ -105,6 +100,13 @@ namespace UsersAPI.Controllers
         private bool PermissionExists(int id)
         {
             return (_context.Permissions?.Any(e => e.PermissionId == id)).GetValueOrDefault();
+        }
+        private string RandomStringGeneration(int length)
+        {
+            var random = new Random();
+            var chars = "ABCDEFGHIJKLMNOPRSTUVWXYZ1234567890abcdefghijklmnoprstuvwxyz";
+
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

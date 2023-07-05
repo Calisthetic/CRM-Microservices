@@ -2,10 +2,8 @@
 
 namespace UsersAPI.Models.DTOs.Incoming
 {
-    public class PermissionAddNew
+    public class PermissionAddDto
     {
-        [JsonPropertyName("name")]
-        public string PermissionName { get; set; } = null!;
         [JsonPropertyName("description")]
         public string PermissionDescription { get; set; } = null!;
     }

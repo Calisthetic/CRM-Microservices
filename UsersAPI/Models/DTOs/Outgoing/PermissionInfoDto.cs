@@ -2,7 +2,7 @@
 
 namespace UsersAPI.Models.DTOs.Outgoing
 {
-    public class PermissionDto
+    public class PermissionInfoDto
     {
         [JsonPropertyName("id")]
         public int PermissionId { get; set; }
