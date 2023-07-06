@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Mapster;
+﻿using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
@@ -13,7 +8,7 @@ using UsersAPI.Models.DTOs.Outgoing;
 
 namespace UsersAPI.Controllers
 {
-    [Route("api/user/permissions")]
+    [Route("api/permissions")]
     [ApiController]
     public class PermissionsController : ControllerBase
     {
@@ -26,7 +21,7 @@ namespace UsersAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Permissions
+        // GET: api/permissions
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PermissionInfoDto>>> GetPermissions()
         {
@@ -37,7 +32,7 @@ namespace UsersAPI.Controllers
             return await _mapper.From(_context.Permissions).ProjectToType<PermissionInfoDto>().ToListAsync();
         }
 
-        // PUT: api/Permissions/5
+        // PUT: api/permissions/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPermission(int id, PermissionUpdateDto permission)
         {
@@ -57,7 +52,7 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Permissions
+        // POST: api/permissions
         [HttpPost]
         public async Task<ActionResult<Permission>> PostPermission(PermissionAddDto permission)
         {
@@ -87,7 +82,7 @@ namespace UsersAPI.Controllers
             return CreatedAtAction("PostPermission", new { id = newPermission.PermissionId }, newPermission);
         }
 
-        // DELETE: api/Permissions/5
+        // DELETE: api/permissions/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePermission(int id)
         {
@@ -107,10 +102,6 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        private bool PermissionExists(int id)
-        {
-            return (_context.Permissions?.Any(e => e.PermissionId == id)).GetValueOrDefault();
-        }
         private string RandomStringGeneration(int length)
         {
             var random = new Random();

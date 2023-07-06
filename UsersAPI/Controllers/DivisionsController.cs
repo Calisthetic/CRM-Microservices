@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Mapster;
+﻿using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
@@ -14,7 +9,7 @@ using UsersAPI.Models.DTOs.Outgoing.Divisions;
 
 namespace UsersAPI.Controllers
 {
-    [Route("api/user/division")]
+    [Route("api/divisions")]
     [ApiController]
     public class DivisionsController : ControllerBase
     {
@@ -27,7 +22,7 @@ namespace UsersAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/user/division/tree
+        // GET: api/divisions/tree
         [HttpGet("tree")]
         public async Task<ActionResult<IEnumerable<DivisionsTreeDto>>> GetDivisions()
         {
@@ -44,7 +39,7 @@ namespace UsersAPI.Controllers
             ).ProjectToType<DivisionsTreeDto>().ToListAsync());
         }
 
-        // GET: api/user/division/5
+        // GET: api/divisions/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DivisionInfoWithAddsDto>> GetDivision(int id)
         {
@@ -65,7 +60,7 @@ namespace UsersAPI.Controllers
             return division.Adapt<DivisionInfoWithAddsDto>();
         }
 
-        // PUT: api/user/division/5
+        // PUT: api/divisions/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDivision(int id, DivisionUpdateDto division)
         {
@@ -229,7 +224,7 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        //POST: api/user/division
+        //POST: api/divisions
         [HttpPost]
         public async Task<ActionResult<Division>> PostDivision(DivisionAddNewDto division)
         {
@@ -325,7 +320,7 @@ namespace UsersAPI.Controllers
             }
         }
 
-        // DELETE: api/user/division/5
+        // DELETE: api/divisions/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDivision(int id)
         {

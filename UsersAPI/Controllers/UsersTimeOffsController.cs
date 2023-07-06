@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Mapster;
+﻿using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
@@ -13,8 +8,7 @@ using UsersAPI.Models.DTOs.Outgoing;
 
 namespace UsersAPI.Controllers
 {
-    //[Route("api/[controller]")]
-    [Route("api/user/time_off")]
+    [Route("api/time_off")]
     [ApiController]
     public class UsersTimeOffsController : ControllerBase
     {
@@ -27,7 +21,7 @@ namespace UsersAPI.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/user/time_off
+        // GET: api/time_off
         [HttpGet]
         public async Task<ActionResult<List<TimeOffWithUserDto>>> GetUsersTimeOffs()
         {
@@ -39,7 +33,7 @@ namespace UsersAPI.Controllers
                 .Where(x => x.EndTimeOff > DateTime.Now)).ProjectToType<TimeOffWithUserDto>().ToListAsync());
         }
 
-        // GET: api/user/time_off/5
+        // GET: api/time_off/5
         [HttpGet("{user_id}")]
         public async Task<ActionResult<TimeOffInfoDto>> GetUsersTimeOff(int user_id)
         {
@@ -57,7 +51,7 @@ namespace UsersAPI.Controllers
             return usersTimeOff.Adapt<TimeOffInfoDto>();
         }
 
-        // PUT: api/user/time_off/5
+        // PUT: api/time_off/5
         [HttpPut("{user_id}")]
         public async Task<IActionResult> PutUsersTimeOff(int user_id, TimeOffAddUpdateDto timeOff)
         {
@@ -100,7 +94,7 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/user/time_off
+        // POST: api/time_off
         [HttpPost]
         public async Task<ActionResult<UsersTimeOff>> PostUsersTimeOff(TimeOffAddUpdateDto timeOff)
         {
@@ -129,13 +123,13 @@ namespace UsersAPI.Controllers
                 return BadRequest(new ErrorDto() { Error = "Time off can last no more than 4 weeks" });
 
             var newTimeOff = timeOff.Adapt<UsersTimeOff>();
-            _context.UsersTimeOffs.Add(newTimeOff);
+            await _context.UsersTimeOffs.AddAsync(newTimeOff);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("PostUsersTimeOff", new { id = newTimeOff.UserTimeOffId }, newTimeOff);
         }
 
-        // DELETE: api/user/time_off/5
+        // DELETE: api/time_off/5
         [HttpDelete("{user_id}")]
         public async Task<IActionResult> DeleteUsersTimeOff(int user_id)
         {
@@ -153,11 +147,6 @@ namespace UsersAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool UsersTimeOffExists(int id)
-        {
-            return (_context.UsersTimeOffs?.Any(e => e.UserTimeOffId == id)).GetValueOrDefault();
         }
     }
 }

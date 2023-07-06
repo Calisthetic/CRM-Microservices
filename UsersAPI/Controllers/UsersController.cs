@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using UsersAPI.Configurations;
 using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming.Users;
 using UsersAPI.Models.DTOs.Outgoing;
@@ -23,7 +14,7 @@ using UsersAPI.Models.DTOs.Outgoing.Users;
 
 namespace UsersAPI.Controllers
 {
-    [Route("api/user")]
+    [Route("api/users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -43,7 +34,7 @@ namespace UsersAPI.Controllers
 
         // GET: api/user
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,AddUsers")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,AddUsers")]
         public async Task<ActionResult<IList<UserInfoDto>>> GetUsers()
         {
             if (_context.Users == null)
@@ -63,7 +54,7 @@ namespace UsersAPI.Controllers
 
         // GET: api/user/5
         [HttpGet("{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,SddUsedrs")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "sus,Ad,SddUsedrs")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             if (_context.Users == null)
@@ -75,7 +66,7 @@ namespace UsersAPI.Controllers
                 .Include(x => x.Division).ThenInclude(x => x.Company)
                 //.Include(x => x.Division).ThenInclude(x => x.PermissionsOfDivisions).ThenInclude(x => x.Permission)
                 .Include(x => x.Division).ThenInclude(x => x.DivisionPrefix)
-                .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).FirstAsync(x => x.UserId == id);
+                .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).FirstOrDefaultAsync(x => x.UserId == id);
 
             if (user == null)
             {
@@ -292,6 +283,12 @@ namespace UsersAPI.Controllers
                 Token = jwtToken,
                 RefreshToken = refreshToken.Token
             };
+        }
+
+        [HttpGet("error")]
+        public async Task<IActionResult> GetError()
+        {
+            throw new DivideByZeroException();
         }
 
         [HttpPost("refresh_token")]
