@@ -24,7 +24,7 @@ namespace UsersAPI.Controllers
 
         // GET: api/divisions/tree
         [HttpGet("tree")]
-        public async Task<ActionResult<IEnumerable<DivisionsTreeDto>>> GetDivisions()
+        public async Task<ActionResult<IEnumerable<DivisionsTreeDto>>> GetDivisionsTree()
         {
             if (_context.Divisions == null)
             {
@@ -37,6 +37,18 @@ namespace UsersAPI.Controllers
                 .ThenInclude(x => x.InverseUpperDivision)
                 .ThenInclude(x => x.InverseUpperDivision)
             ).ProjectToType<DivisionsTreeDto>().ToListAsync());
+        }
+
+        // GET: api/divisions/list
+        [HttpGet("list")]
+        public async Task<ActionResult<IEnumerable<DivisionInfoDto>>> GetDivisionsList()
+        {
+            if (_context.Divisions == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(await _mapper.From(_context.Divisions).ProjectToType<DivisionInfoDto>().ToListAsync());
         }
 
         // GET: api/divisions/5

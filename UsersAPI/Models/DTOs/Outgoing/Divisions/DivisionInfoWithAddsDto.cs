@@ -18,9 +18,9 @@ namespace UsersAPI.Models.DTOs.Outgoing.Divisions
         public string CompanyName { get; set; } = null!;
 
         [JsonPropertyName("lower_division")]
-        public virtual DivisionAddInfoDto? LowerDivision { get; set; }
+        public virtual DivisionInfoDto? LowerDivision { get; set; }
 
         [JsonPropertyName("upper_division")]
-        public virtual DivisionAddInfoDto? UpperDivision { get; set; }
+        public virtual DivisionInfoDto? UpperDivision { get; set; }
     }
 }

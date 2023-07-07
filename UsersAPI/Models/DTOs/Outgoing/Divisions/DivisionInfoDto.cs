@@ -3,7 +3,7 @@ using UsersAPI.Models.DB;
 
 namespace UsersAPI.Models.DTOs.Outgoing.Divisions
 {
-    public class DivisionAddInfoDto
+    public class DivisionInfoDto
     {
         [JsonPropertyName("id")]
         public int DivisionId { get; set; }
