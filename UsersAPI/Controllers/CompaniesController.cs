@@ -40,7 +40,7 @@ namespace UsersAPI.Controllers
 
         // GET: api/Companies/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Company>> GetCompany(int id)
+        public async Task<ActionResult<CompanyInfoDto>> GetCompany(int id)
         {
             if (_context.Companies == null)
             {
@@ -53,7 +53,7 @@ namespace UsersAPI.Controllers
                 return NotFound();
             }
 
-            return company;
+            return company.Adapt<CompanyInfoDto>();
         }
 
         // PUT: api/Companies/5

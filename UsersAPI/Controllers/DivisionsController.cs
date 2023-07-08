@@ -108,7 +108,7 @@ namespace UsersAPI.Controllers
 
                 // Если нижний ссылается на высший
                 if (lowerDivision.UpperDivisionId == upperDivision.DivisionId ||
-                    lowerDivision?.UpperDivision?.UpperDivisionId == upperDivision.DivisionId)
+                    lowerDivision.UpperDivision?.UpperDivisionId == upperDivision.DivisionId)
                 { // Либо нижний -> высший -> высший
                     currentDivision.DivisionName = division.DivisionName;
                     currentDivision.CompanyId = division.CompanyId;
