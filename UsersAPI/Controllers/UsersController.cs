@@ -41,15 +41,50 @@ namespace UsersAPI.Controllers
             {
                 return NotFound();
             }
-            //return Ok(await _context.Users.Include(x => x.ProfileImages)
-            //    .Include(x => x.Division).ThenInclude(x => x.UpperDivision)
-            //    .Include(x => x.Division).ThenInclude(x => x.Company)
-            //    //.Include(x => x.Division).ThenInclude(x => x.PermissionsOfDivisions).ThenInclude(x => x.Permission)
-            //    .Include(x => x.Division).ThenInclude(x => x.DivisionPrefix)
-            //    .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).ToListAsync());
-            //return Ok(_context.Users);
-            return Ok(_mapper.From(_context.Users.Include(x => x.UsersTimeOffs).Include(x => x.UpperUser).ThenInclude(x => x.Division)
-                .Include(x => x.UpperUser).ThenInclude(x => x.Division).ThenInclude(x => x.DivisionPrefix)).ProjectToType<UserInfoDto>());
+            return Ok(_mapper.From(_context.Users.Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now))
+                .Include(x => x.UpperUser).ThenInclude(x => x.Division)
+                .Include(x => x.UpperUser).ThenInclude(x => x.Division)
+                .ThenInclude(x => x.DivisionPrefix)).ProjectToType<UserInfoDto>());
+        }
+
+        [HttpGet("upper/{division_id}")]
+        public async Task<IActionResult> GetUpperUsersByDivision(int division_id)
+        {
+            if (_context.Users == null)
+                return NotFound();
+
+            var currentDivision = await _context.Divisions.FirstOrDefaultAsync(x => x.DivisionId == division_id);
+            if (currentDivision == null)
+                return NotFound();
+            if (currentDivision.UpperDivisionId == null)
+                return Ok(new List<string>());
+
+            var resultDivision = await _context.Divisions.Include(x => x.UpperDivision).ThenInclude(x => x.Users)
+                .Include(x => x.Users).Include(x => x.UpperDivision).ThenInclude(x => x.InverseUpperDivision).ThenInclude(x => x.Users)
+                .FirstOrDefaultAsync(x => x.DivisionId == currentDivision.UpperDivisionId);
+            if (resultDivision == null)
+                return NotFound();
+
+            // transform to users list
+            var result = ConvertToUsers(resultDivision);
+
+            return Ok(result);
+        }
+
+        private List<UpperUsersListDto> ConvertToUsers(Division? divisions)
+        {
+            if (divisions == null)
+                return new List<UpperUsersListDto>();
+
+            var result = new List<UpperUsersListDto>();
+
+            foreach (var user in divisions.Users)
+            {
+                result.Add(user.Adapt<UpperUsersListDto>());
+            }
+            result.AddRange(ConvertToUsers(divisions.UpperDivision));
+
+            return result;
         }
 
         // GET: api/user/5
@@ -64,7 +99,6 @@ namespace UsersAPI.Controllers
             var user = await _context.Users.Include(x => x.ProfileImages)
                 .Include(x => x.Division).ThenInclude(x => x.UpperDivision)
                 .Include(x => x.Division).ThenInclude(x => x.Company)
-                //.Include(x => x.Division).ThenInclude(x => x.PermissionsOfDivisions).ThenInclude(x => x.Permission)
                 .Include(x => x.Division).ThenInclude(x => x.DivisionPrefix)
                 .Include(x => x.UsersTimeOffs.Where(xx => xx.EndTimeOff > DateTime.Now)).FirstOrDefaultAsync(x => x.UserId == id);
 

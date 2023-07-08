@@ -29,7 +29,7 @@ public partial class User
     public DateTime CreatedAt { get; set; }
 
     public int? UpperUserId { get; set; }
-
+    [JsonIgnore]
     public virtual Division? Division { get; set; }
 
     [JsonIgnore]

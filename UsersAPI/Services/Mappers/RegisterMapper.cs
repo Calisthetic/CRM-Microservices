@@ -29,6 +29,11 @@ namespace UsersAPI.Services.Mappers
             config.NewConfig<UserAddNewDto, User>()
                 .Map(x => x.CreatedAt, x => DateTime.Now)
                 .RequireDestinationMemberSource(false);
+            config.NewConfig<User, UpperUsersListDto>()
+                .Map(x => x.Division, x => x.Division == null ? null : x.Division.DivisionName)
+                .Map(x => x.DivisionPrefix, 
+                    x => x.Division == null ? null : x.Division.DivisionPrefix == null ? null : x.Division.DivisionPrefix.DivisionPrefixName)
+                .RequireDestinationMemberSource(true);
 
             // Time off
             config.NewConfig<UsersTimeOff, TimeOffInfoDto>()
