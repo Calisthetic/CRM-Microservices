@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using UsersAPI.Models.DB;
 using UsersAPI.Models.DTOs.Incoming;
+using UsersAPI.Models.DTOs.Incoming.Companies;
 using UsersAPI.Models.DTOs.Incoming.Divisions;
 using UsersAPI.Models.DTOs.Incoming.Users;
 using UsersAPI.Models.DTOs.Outgoing;
@@ -70,6 +71,14 @@ namespace UsersAPI.Services.Mappers
                 .RequireDestinationMemberSource(false);
             config.NewConfig<DivisionUpdateDto, Division>()
                 .RequireDestinationMemberSource(false);
+
+            // Companies
+            config.NewConfig<CompanyAddNewDto, Company>()
+                .RequireDestinationMemberSource(false);
+            config.NewConfig<CompanyUpdateDto, Company>()
+                .RequireDestinationMemberSource(false);
+            config.NewConfig<Company, CompanyInfoDto>()
+                .RequireDestinationMemberSource(true);
         }
     }
 }

@@ -14,7 +14,7 @@ public partial class Company
 
     [JsonIgnore]
     public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
-
+    [JsonIgnore]
     public virtual ICollection<Company> InverseUpperCompany { get; set; } = new List<Company>();
 
     public virtual Company? UpperCompany { get; set; }

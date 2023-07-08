@@ -266,7 +266,7 @@ namespace UsersAPI.Controllers
 
                 // Если нижний ссылается на высший
                 if (lowerDivision.UpperDivisionId == upperDivision.DivisionId ||
-                    lowerDivision?.UpperDivision?.UpperDivisionId == upperDivision.DivisionId)
+                    lowerDivision.UpperDivision?.UpperDivisionId == upperDivision.DivisionId)
                 { // Либо нижний -> высший -> высший
                     var newDivision = division.Adapt<Division>();
                     await _context.Divisions.AddAsync(newDivision);
