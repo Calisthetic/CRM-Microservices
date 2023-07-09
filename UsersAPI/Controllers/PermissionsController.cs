@@ -32,8 +32,8 @@ namespace UsersAPI.Controllers
             return await _mapper.From(_context.Permissions).ProjectToType<PermissionInfoDto>().ToListAsync();
         }
 
-        // PUT: api/permissions/5
-        [HttpPut("{id}")]
+        // PATCH: api/permissions/5
+        [HttpPatch("{id}")]
         public async Task<IActionResult> PutPermission(int id, PermissionUpdateDto permission)
         {
             if (id != permission.PermissionId)

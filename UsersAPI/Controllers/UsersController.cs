@@ -154,9 +154,9 @@ namespace UsersAPI.Controllers
         }
 
 
-        // PUT: api/users/5 ---
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        // PATCH: api/users/5 ---
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, UserUpdateDto user)
         {
             if (id != user.UserId)
             {
@@ -165,21 +165,8 @@ namespace UsersAPI.Controllers
 
             _context.Entry(user).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
