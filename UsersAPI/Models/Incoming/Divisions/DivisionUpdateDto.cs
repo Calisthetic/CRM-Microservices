@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace UsersAPI.Models.DTOs.Incoming.Divisions
+namespace UsersAPI.Models.Incoming.Divisions
 {
     public class DivisionUpdateDto
     {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace UsersAPI.Models.DTOs.Outgoing
+namespace UsersAPI.Models.Outgoing
 {
     public class PermissionInfoDto
     {

@@ -3,8 +3,8 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
-using UsersAPI.Models.DTOs.Incoming;
-using UsersAPI.Models.DTOs.Outgoing;
+using UsersAPI.Models.Incoming;
+using UsersAPI.Models.Outgoing;
 
 namespace UsersAPI.Controllers
 {

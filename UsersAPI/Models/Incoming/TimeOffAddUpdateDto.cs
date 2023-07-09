@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using UsersAPI.Models.DB;
 
-namespace UsersAPI.Models.DTOs.Outgoing
+namespace UsersAPI.Models.Incoming
 {
-    public class TimeOffInfoDto
+    public class TimeOffAddUpdateDto
     {
         [JsonPropertyName("user_id")]
         public int UserId { get; set; }
@@ -12,8 +13,9 @@ namespace UsersAPI.Models.DTOs.Outgoing
         public string? Description { get; set; }
 
         [JsonPropertyName("start")]
-        public DateTime StartTimeOff { get; set; }
+        public string StartTimeOff { get; set; } = null!;
+
         [JsonPropertyName("end")]
-        public DateTime EndTimeOff { get; set; }
+        public string EndTimeOff { get; set; } = null!;
     }
 }

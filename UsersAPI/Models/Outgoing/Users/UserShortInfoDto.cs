@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace UsersAPI.Models.DTOs.Outgoing.Users
+namespace UsersAPI.Models.Outgoing.Users
 {
     public class UserShortInfoDto
     {

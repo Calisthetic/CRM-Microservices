@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace UsersAPI.Models.DTOs.Incoming.Permissions
+namespace UsersAPI.Models.Incoming.Permissions
 {
     public class PermissionAddDto
     {

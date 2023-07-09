@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using UsersAPI.Models.DTOs.Outgoing.Users;
+using UsersAPI.Models.Outgoing.Users;
 
-namespace UsersAPI.Models.DTOs.Outgoing
+namespace UsersAPI.Models.Outgoing
 {
     public class TimeOffWithUserDto
     {

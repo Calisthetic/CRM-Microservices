@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UsersAPI.Models.DTOs.Incoming.Users
+namespace UsersAPI.Models.Incoming.Users
 {
     public class TokenRequestDto
     {

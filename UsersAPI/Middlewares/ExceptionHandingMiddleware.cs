@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
-using UsersAPI.Models.DTOs.Outgoing;
+using UsersAPI.Models.Outgoing;
 
 namespace UsersAPI.Middlewares
 {

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using UsersAPI.Models.DB;
 
-namespace UsersAPI.Models.DTOs.Outgoing.Users
+namespace UsersAPI.Models.Outgoing.Users
 {
     public class UserInfoDto
     {

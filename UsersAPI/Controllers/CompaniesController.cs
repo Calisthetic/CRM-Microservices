@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UsersAPI.Models.DB;
-using UsersAPI.Models.DTOs.Incoming.Companies;
-using UsersAPI.Models.DTOs.Outgoing;
+using UsersAPI.Models.Incoming.Companies;
+using UsersAPI.Models.Outgoing;
 
 namespace UsersAPI.Controllers
 {

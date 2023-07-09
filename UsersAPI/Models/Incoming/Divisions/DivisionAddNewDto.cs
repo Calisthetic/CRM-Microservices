@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using UsersAPI.Models.DB;
 
-namespace UsersAPI.Models.DTOs.Incoming.Divisions
+namespace UsersAPI.Models.Incoming.Divisions
 {
     public class DivisionAddNewDto
     {

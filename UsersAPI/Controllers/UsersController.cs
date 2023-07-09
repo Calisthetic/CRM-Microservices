@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using UsersAPI.Models.DB;
-using UsersAPI.Models.DTOs.Incoming.Users;
-using UsersAPI.Models.DTOs.Outgoing;
-using UsersAPI.Models.DTOs.Outgoing.Users;
+using UsersAPI.Models.Incoming.Users;
+using UsersAPI.Models.Outgoing;
+using UsersAPI.Models.Outgoing.Users;
 
 namespace UsersAPI.Controllers
 {
@@ -154,7 +154,7 @@ namespace UsersAPI.Controllers
         }
 
 
-        // PUT: api/user/5
+        // PUT: api/users/5 ---
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
@@ -184,7 +184,7 @@ namespace UsersAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/user
+        // POST: api/users
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserAddNewDto user)
         {
@@ -200,7 +200,7 @@ namespace UsersAPI.Controllers
             return CreatedAtAction("GetUser", new { id = newUser.UserId }, newUser);
         }
 
-        // POST: api/user/login
+        // POST: api/users/login
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserAuthResultDto>> LoginUser(UserLoginRequestDto user)
@@ -220,7 +220,7 @@ namespace UsersAPI.Controllers
             return Ok(await GenerateToken(existUser));
         }
 
-        // POST: api/user/register
+        // POST: api/users/register
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserAuthResultDto>> RegisterUser(UserLoginRequestDto user)
@@ -237,7 +237,7 @@ namespace UsersAPI.Controllers
             return Ok(await GenerateToken(existUser));
         }
 
-        // DELETE: api/user/5
+        // DELETE: api/users/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

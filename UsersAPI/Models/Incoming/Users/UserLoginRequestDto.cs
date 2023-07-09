@@ -1,4 +1,4 @@
-﻿namespace UsersAPI.Models.DTOs.Incoming.Users
+﻿namespace UsersAPI.Models.Incoming.Users
 {
     public class UserLoginRequestDto
     {

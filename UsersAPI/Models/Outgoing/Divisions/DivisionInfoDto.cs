@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using UsersAPI.Models.DB;
 
-namespace UsersAPI.Models.DTOs.Outgoing.Divisions
+namespace UsersAPI.Models.Outgoing.Divisions
 {
     public class DivisionInfoDto
     {
